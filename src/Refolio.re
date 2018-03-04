@@ -14,12 +14,12 @@ type item = {
 };
 
 type portfolio = {
-  catergories: list(category),
+  categories: list(category),
   items: list(item)
 };
 
-type model = {
-  errorMessage: string,
+type state = {
+  errorMessage: option(string),
   portfolio,
   selectedCategoryId: option(int),
   selectedItemId: option(int),
@@ -30,3 +30,33 @@ type action =
   | ApiResponse(string) /* `string` will become the API response handler */
   | CategoryClicked(int)
   | ItemClicked(int);
+
+let str = ReasonReact.stringToElement;
+
+let component = ReasonReact.reducerComponent("Refolio");
+
+let make = children => {
+  ...component,
+  initialState: () => {
+    errorMessage: None,
+    portfolio: {
+      categories: [],
+      items: []
+    },
+    selectedCategoryId: None,
+    selectedItemId: None,
+    apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed"
+  },
+  reducer: (action, reduce) =>
+    switch action {
+    | ApiResponse(string) => ReasonReact.NoUpdate
+    | CategoryClicked(id) => ReasonReact.NoUpdate
+    | ItemClicked(id) => ReasonReact.NoUpdate
+    },
+  render: ({state: {apiUrl}, reduce}) =>
+    <div className="app">
+      <div className="title" />
+      <div> (str(apiUrl)) </div>
+      <div className="footer" />
+    </div>
+};
