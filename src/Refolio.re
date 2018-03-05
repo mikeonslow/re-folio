@@ -113,11 +113,14 @@ let make = children => {
         )
       )
     | FetchPortfolioFailure => ReasonReact.NoUpdate
-    | FetchPortfolioSuccess(portfolio) => ReasonReact.NoUpdate
+    | FetchPortfolioSuccess(portfolio) =>
+      Js.log("FetchPortfolioSuccess(portfolio)");
+      Js.log(portfolio);
+      ReasonReact.NoUpdate;
     | CategoryClicked(id) => ReasonReact.NoUpdate
     | ItemClicked(id) => ReasonReact.NoUpdate
     },
-  render: ({state: {apiUrl}, reduce}) =>
+  render: ({state: {apiUrl, portfolio}, reduce}) =>
     <div className="app">
       <h1 className="title"> (str("Refolio")) </h1>
       <div> (str(apiUrl)) </div>
