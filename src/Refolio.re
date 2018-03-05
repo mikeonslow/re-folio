@@ -1,3 +1,11 @@
+module Option = {
+  let unwrapUnsafely = data =>
+    switch data {
+    | Some(v) => v
+    | None => raise(Invalid_argument("unwrapUnsafely called on None"))
+    };
+};
+
 type category = {
   id: int,
   label: string
@@ -16,6 +24,29 @@ type item = {
 type portfolio = {
   categories: list(category),
   items: list(item)
+};
+
+module Decode = {
+  let category = json =>
+    Json.Decode.{
+      id: json |> field("id", int),
+      label: json |> field("label", string)
+    };
+  let item = json =>
+    Json.Decode.{
+      id: json |> field("id", int),
+      title: json |> field("title", string),
+      categoryId: json |> field("categoryId", int),
+      imageUrl: json |> field("imageUrl", string),
+      linkUrl: json |> field("linkUrl", string),
+      description: json |> field("description", string),
+      overlayColor: json |> field("overlayColor", string)
+    };
+  let portfolio = json =>
+    Json.Decode.{
+      categories: json |> Json.Decode.list(category),
+      items: json |> Json.Decode.list(item)
+    };
 };
 
 type state = {
@@ -47,6 +78,14 @@ let make = children => {
     selectedItemId: None,
     apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed"
   },
+  didMount: ({state: {apiUrl}, reduce}) => {
+    Js.Promise.(
+      Fetch.fetch(apiUrl)
+      |> then_(Fetch.Response.text)
+      |> then_(text => print_endline(text) |> resolve)
+    );
+    ReasonReact.NoUpdate;
+  },
   reducer: (action, reduce) =>
     switch action {
     | ApiResponse(string) => ReasonReact.NoUpdate
@@ -55,7 +94,7 @@ let make = children => {
     },
   render: ({state: {apiUrl}, reduce}) =>
     <div className="app">
-      <div className="title" />
+      <h1 className="title"> (str("Refolio")) </h1>
       <div> (str(apiUrl)) </div>
       <div className="footer" />
     </div>
