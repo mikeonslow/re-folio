@@ -44,21 +44,29 @@ module Decode = {
     };
   let portfolio = json =>
     Json.Decode.{
-      categories: json |> Json.Decode.list(category),
-      items: json |> Json.Decode.list(item)
+      categories: json |> field("categories", Json.Decode.list(category)),
+      items: json |> field("items", Json.Decode.list(item))
     };
 };
 
+type remoteData =
+  | NotAsked
+  | Loading
+  | Error
+  | Success(portfolio);
+
 type state = {
   errorMessage: option(string),
-  portfolio,
+  portfolio: remoteData,
   selectedCategoryId: option(int),
   selectedItemId: option(int),
   apiUrl: string
 };
 
 type action =
-  | ApiResponse(string) /* `string` will become the API response handler */
+  | FetchPortfolio(string)
+  | FetchPortfolioFailure
+  | FetchPortfolioSuccess(portfolio)
   | CategoryClicked(int)
   | ItemClicked(int);
 
@@ -70,25 +78,42 @@ let make = children => {
   ...component,
   initialState: () => {
     errorMessage: None,
-    portfolio: {
-      categories: [],
-      items: []
-    },
+    portfolio: NotAsked,
     selectedCategoryId: None,
     selectedItemId: None,
     apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed"
   },
-  didMount: ({state: {apiUrl}, reduce}) => {
-    Js.Promise.(
-      Fetch.fetch(apiUrl)
-      |> then_(Fetch.Response.text)
-      |> then_(text => print_endline(text) |> resolve)
-    );
+  didMount: self => {
+    self.send(FetchPortfolio(self.state.apiUrl));
     ReasonReact.NoUpdate;
   },
-  reducer: (action, reduce) =>
+  reducer: (action, state) =>
     switch action {
-    | ApiResponse(string) => ReasonReact.NoUpdate
+    | FetchPortfolio(url) =>
+      ReasonReact.UpdateWithSideEffects(
+        {...state, portfolio: Loading},
+        (
+          self =>
+            Js.Promise.(
+              Fetch.fetch(url)
+              |> then_(Fetch.Response.json)
+              |> then_(json =>
+                   json
+                   |> Decode.portfolio
+                   |> (
+                     portfolio => self.send(FetchPortfolioSuccess(portfolio))
+                   )
+                   |> resolve
+                 )
+              |> catch(_err =>
+                   Js.Promise.resolve(self.send(FetchPortfolioFailure))
+                 )
+              |> ignore
+            )
+        )
+      )
+    | FetchPortfolioFailure => ReasonReact.NoUpdate
+    | FetchPortfolioSuccess(portfolio) => ReasonReact.NoUpdate
     | CategoryClicked(id) => ReasonReact.NoUpdate
     | ItemClicked(id) => ReasonReact.NoUpdate
     },
