@@ -8,35 +8,41 @@ module Option = {
     };
 };
 
-type category = {
-  id: int,
-  label: string
+module Category = {
+  type t = {
+    id: int,
+    label: string
+  };
 };
 
-type item = {
-  id: int,
-  title: string,
-  categoryId: int,
-  imageUrl: string,
-  linkUrl: string,
-  description: string,
-  overlayColor: string
+module Item = {
+  type t = {
+    id: int,
+    title: string,
+    categoryId: int,
+    imageUrl: string,
+    linkUrl: string,
+    description: string,
+    overlayColor: string
+  };
 };
 
-type portfolio = {
-  categories: list(category),
-  items: list(item)
+module Portfolio = {
+  type t = {
+    categories: list(Category.t),
+    items: list(Item.t)
+  };
 };
 
 module Decode = {
   let category = json =>
     Json.Decode.{
-      id: json |> field("id", int),
+      Category.id: json |> field("id", int),
       label: json |> field("label", string)
     };
   let item = json =>
     Json.Decode.{
-      id: json |> field("id", int),
+      Item.id: json |> field("id", int),
       title: json |> field("title", string),
       categoryId: json |> field("categoryId", int),
       imageUrl: json |> field("imageUrl", string),
@@ -46,16 +52,17 @@ module Decode = {
     };
   let portfolio = json =>
     Json.Decode.{
-      categories: json |> field("categories", Json.Decode.list(category)),
-      items: json |> field("items", Json.Decode.list(item))
+      Portfolio.categories:
+        json |> field("categories", Json.Decode.list(category)),
+      Portfolio.items: json |> field("items", Json.Decode.list(item))
     };
 };
 
 module CategoryButton = {
   let component = ReasonReact.statelessComponent("CategoryButton");
-  let make = (~category, children) => {
+  let make = (~category: Category.t, children) => {
     ...component,
-    render: (_) => <button> (str(string_of_int(category.id))) </button>
+    render: (_) => <button> (str(category.label)) </button>
   };
 };
 
@@ -63,7 +70,7 @@ type remoteData =
   | NotAsked
   | Loading
   | Error
-  | Success(portfolio);
+  | Success(Portfolio.t);
 
 type state = {
   errorMessage: option(string),
@@ -76,7 +83,7 @@ type state = {
 type action =
   | FetchPortfolio(string)
   | FetchPortfolioFailure
-  | FetchPortfolioSuccess(portfolio)
+  | FetchPortfolioSuccess(Portfolio.t)
   | CategoryClicked(int)
   | ItemClicked(int);
 
@@ -109,7 +116,11 @@ let make = children => {
                    json
                    |> Decode.portfolio
                    |> (
-                     portfolio => self.send(FetchPortfolioSuccess(portfolio))
+                     portfolio => {
+                       Js.log("portfolio.categories");
+                       Js.log(portfolio.categories);
+                       self.send(FetchPortfolioSuccess(portfolio));
+                     }
                    )
                    |> resolve
                  )
@@ -123,7 +134,6 @@ let make = children => {
     | FetchPortfolioFailure => ReasonReact.NoUpdate
     | FetchPortfolioSuccess(portfolio) =>
       ReasonReact.Update({...state, portfolio: Success(portfolio)})
-    /*(p => Js.log(portfolio.items))*/
     | CategoryClicked(id) => ReasonReact.NoUpdate
     | ItemClicked(id) => ReasonReact.NoUpdate
     },
@@ -140,10 +150,10 @@ let make = children => {
             ReasonReact.arrayToElement(
               Array.of_list(
                 List.map(
-                  category =>
+                  (category: Category.t) =>
                     <CategoryButton
+                      key=(string_of_int(category.id))
                       category
-                      /*key=(string_of_int(category.id))*/
                     />,
                   portfolio.categories
                 )
