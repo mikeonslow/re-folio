@@ -1,3 +1,5 @@
+let str = ReasonReact.stringToElement;
+
 module Option = {
   let unwrapUnsafely = data =>
     switch data {
@@ -49,6 +51,14 @@ module Decode = {
     };
 };
 
+module CategoryButton = {
+  let component = ReasonReact.statelessComponent("CategoryButton");
+  let make = (~category, children) => {
+    ...component,
+    render: (_) => <button> (str(string_of_int(category.id))) </button>
+  };
+};
+
 type remoteData =
   | NotAsked
   | Loading
@@ -69,8 +79,6 @@ type action =
   | FetchPortfolioSuccess(portfolio)
   | CategoryClicked(int)
   | ItemClicked(int);
-
-let str = ReasonReact.stringToElement;
 
 let component = ReasonReact.reducerComponent("Refolio");
 
@@ -114,16 +122,36 @@ let make = children => {
       )
     | FetchPortfolioFailure => ReasonReact.NoUpdate
     | FetchPortfolioSuccess(portfolio) =>
-      Js.log("FetchPortfolioSuccess(portfolio)");
-      Js.log(portfolio);
-      ReasonReact.NoUpdate;
+      ReasonReact.Update({...state, portfolio: Success(portfolio)})
+    /*(p => Js.log(portfolio.items))*/
     | CategoryClicked(id) => ReasonReact.NoUpdate
     | ItemClicked(id) => ReasonReact.NoUpdate
     },
   render: ({state: {apiUrl, portfolio}, reduce}) =>
     <div className="app">
       <h1 className="title"> (str("Refolio")) </h1>
-      <div> (str(apiUrl)) </div>
+      <div className="categories">
+        (
+          switch portfolio {
+          | NotAsked => <div> (str("Not Asked")) </div>
+          | Loading => <div> (str("Loading...")) </div>
+          | Error => <div> (str("Error")) </div>
+          | Success(portfolio) =>
+            ReasonReact.arrayToElement(
+              Array.of_list(
+                List.map(
+                  category =>
+                    <CategoryButton
+                      category
+                      /*key=(string_of_int(category.id))*/
+                    />,
+                  portfolio.categories
+                )
+              )
+            )
+          }
+        )
+      </div>
       <div className="footer" />
     </div>
 };
