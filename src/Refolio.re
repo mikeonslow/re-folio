@@ -138,30 +138,39 @@ let make = children => {
     | ItemClicked(id) => ReasonReact.NoUpdate
     },
   render: ({state: {apiUrl, portfolio}, reduce}) =>
-    <div className="app">
-      <h1 className="title"> (str("Refolio")) </h1>
-      <div className="categories">
-        (
-          switch portfolio {
-          | NotAsked => <div> (str("Not Asked")) </div>
-          | Loading => <div> (str("Loading...")) </div>
-          | Error => <div> (str("Error")) </div>
-          | Success(portfolio) =>
-            ReasonReact.arrayToElement(
-              Array.of_list(
-                List.map(
-                  (category: Category.t) =>
-                    <CategoryButton
-                      key=(string_of_int(category.id))
-                      category
-                    />,
-                  portfolio.categories
-                )
-              )
-            )
-          }
-        )
+    <div className="container">
+      <div className="row"> <div className="col" /> </div>
+      <div className="row">
+        <div className="col"> <h1> (str("Re-folio")) </h1> </div>
       </div>
-      <div className="footer" />
+      <div className="row"> <div className="col" /> </div>
+      <div className="row">
+        <div className="col">
+          <div className="categories">
+            (
+              switch portfolio {
+              | NotAsked => <div> (str("Not Asked")) </div>
+              | Loading => <div> (str("Loading...")) </div>
+              | Error => <div> (str("Error")) </div>
+              | Success(portfolio) =>
+                ReasonReact.arrayToElement(
+                  Array.of_list(
+                    List.map(
+                      (category: Category.t) =>
+                        <CategoryButton
+                          key=(string_of_int(category.id))
+                          category
+                        />,
+                      portfolio.categories
+                    )
+                  )
+                )
+              }
+            )
+          </div>
+        </div>
+      </div>
+      <div className="row"> <div className="col selected-item" /> </div>
+      <div className="row"> <div className="col items" /> </div>
     </div>
 };
