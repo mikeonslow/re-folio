@@ -1,0 +1,60 @@
+.content {
+    width: 960px;
+    margin: 0 auto;
+    padding: 30px;
+    text-align: center;
+    font-family: Helvetica, Arial, serif;
+}
+
+header {
+    position: relative;
+    padding: 6px 12px;
+    height: 36px;
+}
+
+h1 {
+    color: #5A6477;
+    font-weight: normal;
+    margin: 0;
+}
+
+.logo {
+    width: 280px;
+}
+
+.intro-message {
+    padding: 48px;
+    font-size: 48px;
+    text-align: center;
+}
+
+
+.nav-category  {
+    text-align: center !important;
+    padding: 3px;
+}
+
+.selected-item-container {
+    padding-top: 25px;
+}
+
+.item-panel img , .selected-item-container img {
+    padding: 4px;
+    border: 1px solid #a9a9a9;
+    cursor: pointer;
+}
+
+.item-panel {
+    margin-bottom: 15px;
+}
+
+.items-container {
+    margin-top: 25px;
+    border-bottom: 1px solid #dfdfdf;
+    border-top: 1px solid #dfdfdf;
+    padding: 50px;
+}
+
+.btn-category {
+    cursor: pointer !important;
+}
