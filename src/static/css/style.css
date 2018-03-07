@@ -31,7 +31,8 @@ h1 {
 
 .nav-category  {
     text-align: center !important;
-    padding: 3px;
+    padding: 13px;
+    margin-bottom: 10px;
 }
 
 .selected-item-container {
