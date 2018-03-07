@@ -59,3 +59,11 @@ h1 {
 .btn-category {
     cursor: pointer !important;
 }
+
+.remote-data-loader {
+    background-color: #efefef;
+    color: #2780E3;
+    padding-top: 80px;
+    padding-bottom: 80px;
+    margin-top: 15px;
+}

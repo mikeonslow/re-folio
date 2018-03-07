@@ -139,15 +139,44 @@ module CategoryNavbar = {
   };
 };
 
-type remoteData =
-  | NotAsked
-  | Loading
-  | Error(string)
-  | Success(Portfolio.t);
+module RemoteData = {
+  type t =
+    | NotAsked
+    | Loading
+    | Error(string)
+    | Success(Portfolio.t);
+  let defaultLoader =
+    <div className="row">
+      <div className="col-4 text-center" />
+      <div className="col-4 remote-data-loader text-center">
+        (str("Loading projects..."))
+        <div className="fa-3x ">
+          <i className="fas fa-circle-notch fa-spin" />
+        </div>
+      </div>
+      <div className="col-4 text-center" />
+    </div>;
+  let initHandler = view => view;
+  let loadingHandler = view => view;
+  let errorHandler = (view, error) => view(error);
+  let successHandler = (view, data) => view(data);
+  let component = ReasonReact.statelessComponent("RemoteData");
+  let make =
+      (~state, ~initView, ~loadingView, ~errorView, ~successView, children) => {
+    ...component,
+    render: (_) =>
+      switch state {
+      | NotAsked => initHandler(initView)
+      | Loading => loadingHandler(loadingView)
+      | Error(error) => errorHandler(errorView, error)
+      | Success(data) => successHandler(successView, data)
+      }
+  };
+};
 
 type state = {
   errorMessage: option(string),
-  portfolio: remoteData,
+  portfolio: RemoteData.t,
   selectedCategoryId: option(int),
   selectedItemId: option(int),
   apiUrl: string
@@ -169,7 +198,7 @@ let make = children => {
     portfolio: NotAsked,
     selectedCategoryId: None,
     selectedItemId: None,
-    apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed"
+    apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed?mocky-delay=10000ms"
   },
   didMount: self => {
     self.send(FetchPortfolio(self.state.apiUrl));
@@ -216,23 +245,25 @@ let make = children => {
       <div className="row">
         <div className="col"> <h1> (str("Re-folio")) </h1> </div>
       </div>
-      (
-        switch portfolio {
-        | NotAsked => str("Initializing...")
-        | Loading => str("Loading...")
-        | Error(error) => str("Error: " ++ error)
-        | Success(portfolio) =>
-          let categories = portfolio.categories;
-          let items = portfolio.items;
-          <div className="row">
-            <CategoryNavbar categories />
-            <ItemsPane
-              items
-              selectedItemId=1
-              onClick=(reduce(evt => ItemClicked(2)))
-            />
-          </div>;
-        }
-      )
+      <RemoteData
+        state=portfolio
+        initView=RemoteData.defaultLoader
+        loadingView=RemoteData.defaultLoader
+        errorView=(e => <div className="row"> (str(e)) </div>)
+        successView=(
+          data => {
+            let categories = data.categories;
+            let items = data.items;
+            <div className="row">
+              <CategoryNavbar categories />
+              <ItemsPane
+                items
+                selectedItemId=1
+                onClick=(reduce(evt => ItemClicked(2)))
+              />
+            </div>;
+          }
+        )
+      />
     </div>
 };
