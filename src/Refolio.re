@@ -198,7 +198,7 @@ let make = children => {
     portfolio: NotAsked,
     selectedCategoryId: None,
     selectedItemId: None,
-    apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed?mocky-delay=10000ms"
+    apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed?mocky-delay=1000ms"
   },
   didMount: self => {
     self.send(FetchPortfolio(self.state.apiUrl));
