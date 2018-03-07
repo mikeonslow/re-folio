@@ -1,5 +1,10 @@
 let str = ReasonReact.stringToElement;
 
+let classList = classes =>
+  classes
+  |> List.map(((className, enabled)) => enabled ? className : "")
+  |> String.concat(" ");
+
 module Option = {
   let unwrapUnsafely = data =>
     switch data {
@@ -60,9 +65,64 @@ module Decode = {
 
 module CategoryButton = {
   let component = ReasonReact.statelessComponent("CategoryButton");
+  let make = (~category: Category.t, ~selectedCategoryId, children) => {
+    ...component,
+    render: (_) =>
+      <button
+        className=(
+          classList([
+            ("btn btn-category", true),
+            ("btn-primary", selectedCategoryId === category.id),
+            ("btn-secondary", selectedCategoryId !== category.id)
+          ])
+        )>
+        (str(category.label))
+      </button>
+  };
+};
+
+let categoryButtons = (categories, selectedCategoryId) =>
+  categories
+  |> List.map((category: Category.t) =>
+       <CategoryButton
+         key=(string_of_int(category.id))
+         category
+         selectedCategoryId
+       />
+     )
+  |> Array.of_list
+  |> ReasonReact.arrayToElement;
+
+module CategoryNavbar = {
+  let component = ReasonReact.statelessComponent("CategoryButton");
+  let make = (~categories: list(Category.t), children) => {
+    ...component,
+    render: (_) =>
+      <div className="row">
+        <div className="col">
+          <div className="nav-category">
+            (categoryButtons(categories, 1))
+          </div>
+        </div>
+      </div>
+  };
+};
+
+/*viewCategoryNavbar : Portfolio -> Int -> Html Msg
+  viewCategoryNavbar { categories } selectedCategoryId =
+      div [ class "row" ]
+          [ div
+              [ class "col" ]
+              [ div [ class "nav-category" ]
+                  (List.map (viewCategoryButton selectedCategoryId) categories)
+              ]
+          ]*/
+module ItemView = {
+  let component = ReasonReact.statelessComponent("ItemView");
   let make = (~category: Category.t, children) => {
     ...component,
-    render: (_) => <button> (str(category.label)) </button>
+    render: (_) =>
+      <button className="btn btn-primary"> (str(category.label)) </button>
   };
 };
 
@@ -143,32 +203,17 @@ let make = children => {
       <div className="row">
         <div className="col"> <h1> (str("Re-folio")) </h1> </div>
       </div>
-      <div className="row"> <div className="col" /> </div>
       <div className="row">
-        <div className="col">
-          <div className="categories">
-            (
-              switch portfolio {
-              | NotAsked => <div> (str("Not Asked")) </div>
-              | Loading => <div> (str("Loading...")) </div>
-              | Error => <div> (str("Error")) </div>
-              | Success(portfolio) =>
-                ReasonReact.arrayToElement(
-                  Array.of_list(
-                    List.map(
-                      (category: Category.t) =>
-                        <CategoryButton
-                          key=(string_of_int(category.id))
-                          category
-                        />,
-                      portfolio.categories
-                    )
-                  )
-                )
-              }
-            )
-          </div>
-        </div>
+        <div className="col" />
+        (
+          switch portfolio {
+          | NotAsked => <div> (str("Not Asked")) </div>
+          | Loading => <div> (str("Loading...")) </div>
+          | Error => <div> (str("Error")) </div>
+          | Success(portfolio) =>
+            <CategoryNavbar categories=portfolio.categories />
+          }
+        )
       </div>
       <div className="row"> <div className="col selected-item" /> </div>
       <div className="row"> <div className="col items" /> </div>
