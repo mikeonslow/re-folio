@@ -108,15 +108,6 @@ module CategoryNavbar = {
   };
 };
 
-/*viewCategoryNavbar : Portfolio -> Int -> Html Msg
-  viewCategoryNavbar { categories } selectedCategoryId =
-      div [ class "row" ]
-          [ div
-              [ class "col" ]
-              [ div [ class "nav-category" ]
-                  (List.map (viewCategoryButton selectedCategoryId) categories)
-              ]
-          ]*/
 module ItemView = {
   let component = ReasonReact.statelessComponent("ItemView");
   let make = (~category: Category.t, children) => {
