@@ -11,6 +11,12 @@ module Option = {
     | Some(v) => v
     | None => raise(Invalid_argument("unwrapUnsafely called on None"))
     };
+  let withDefault = (data, default) =>
+    /*Js.log(data);*/
+    switch data {
+    | Some(v) => v
+    | None => default
+    };
 };
 
 module Category = {
@@ -44,6 +50,20 @@ module Item = {
   };
 };
 
+module Portfolio = {
+  type t = {
+    categories: list(Category.t),
+    items: list(Item.t)
+  };
+};
+
+type action =
+  | FetchPortfolio(string)
+  | FetchPortfolioFailure
+  | FetchPortfolioSuccess(Portfolio.t)
+  | CategoryClicked(int)
+  | ItemClicked(int);
+
 module ItemsPane = {
   let component = ReasonReact.statelessComponent("ItemsPane");
   let make = (~items: list(Item.t), ~selectedItemId: int, ~onClick, children) => {
@@ -57,20 +77,13 @@ module ItemsPane = {
                  key=(string_of_int(item.id))
                  item
                  selectedItemId
-                 onClick=(evt => onClick())
+                 onClick=(evt => onClick(item.id))
                />
              )
           |> Array.of_list
           |> ReasonReact.arrayToElement
         )
       </div>
-  };
-};
-
-module Portfolio = {
-  type t = {
-    categories: list(Category.t),
-    items: list(Item.t)
   };
 };
 
@@ -100,7 +113,7 @@ module Decode = {
 
 module CategoryButton = {
   let component = ReasonReact.statelessComponent("CategoryButton");
-  let make = (~category: Category.t, ~selectedCategoryId, children) => {
+  let make = (~category: Category.t, ~selectedCategoryId, ~onClick, children) => {
     ...component,
     render: (_) =>
       <button
@@ -110,19 +123,21 @@ module CategoryButton = {
             ("btn-primary", selectedCategoryId === category.id),
             ("btn-secondary", selectedCategoryId !== category.id)
           ])
-        )>
+        )
+        onClick=(evt => onClick(category.id))>
         (str(category.label))
       </button>
   };
 };
 
-let categoryButtons = (categories, selectedCategoryId) =>
+let categoryButtons = (categories, selectedCategoryId, onClick) =>
   categories
   |> List.map((category: Category.t) =>
        <CategoryButton
          key=(string_of_int(category.id))
          category
          selectedCategoryId
+         onClick
        />
      )
   |> Array.of_list
@@ -130,11 +145,12 @@ let categoryButtons = (categories, selectedCategoryId) =>
 
 module CategoryNavbar = {
   let component = ReasonReact.statelessComponent("CategoryButton");
-  let make = (~categories: list(Category.t), children) => {
+  let make =
+      (~categories: list(Category.t), ~selectedCategoryId, ~onClick, children) => {
     ...component,
     render: (_) =>
       <div className="col nav-category">
-        (categoryButtons(categories, 1))
+        (categoryButtons(categories, selectedCategoryId, onClick))
       </div>
   };
 };
@@ -193,13 +209,6 @@ type state = {
   apiUrl: string
 };
 
-type action =
-  | FetchPortfolio(string)
-  | FetchPortfolioFailure
-  | FetchPortfolioSuccess(Portfolio.t)
-  | CategoryClicked(int)
-  | ItemClicked(int);
-
 let component = ReasonReact.reducerComponent("Refolio");
 
 let make = children => {
@@ -209,7 +218,7 @@ let make = children => {
     portfolio: NotAsked,
     selectedCategoryId: None,
     selectedItemId: None,
-    apiUrl: "http://www.mmocky.io/v2/59f8cfa92d0000891dad41ed?mocky-delay=1000ms"
+    apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed?mocky-delay=1000ms"
   },
   didMount: self => {
     self.send(FetchPortfolio(self.state.apiUrl));
@@ -229,11 +238,7 @@ let make = children => {
                    json
                    |> Decode.portfolio
                    |> (
-                     portfolio => {
-                       Js.log("portfolio.categories");
-                       Js.log(portfolio.categories);
-                       self.send(FetchPortfolioSuccess(portfolio));
-                     }
+                     portfolio => self.send(FetchPortfolioSuccess(portfolio))
                    )
                    |> resolve
                  )
@@ -251,10 +256,14 @@ let make = children => {
       })
     | FetchPortfolioSuccess(portfolio) =>
       ReasonReact.Update({...state, portfolio: Success(portfolio)})
-    | CategoryClicked(id) => ReasonReact.NoUpdate
-    | ItemClicked(id) => ReasonReact.NoUpdate
+    | CategoryClicked(id) =>
+      ReasonReact.Update({...state, selectedCategoryId: Some(id)})
+    | ItemClicked(id) =>
+      ReasonReact.Update({...state, selectedItemId: Some(id)})
     },
-  render: ({state: {portfolio}, reduce}) =>
+  render: ({state: {portfolio, selectedCategoryId, selectedItemId}, reduce}) => {
+    let categoryId = Option.withDefault(selectedCategoryId, 0);
+    let itemId = Option.withDefault(selectedItemId, 0);
     <div className="container">
       <div className="row"> <div className="col" /> </div>
       <div className="row">
@@ -268,17 +277,26 @@ let make = children => {
         successView=(
           data => {
             let categories = data.categories;
-            let items = data.items;
+            let items =
+              data.items
+              |> List.filter((i: Item.t) =>
+                   0 === categoryId || i.categoryId == categoryId
+                 );
             <div className="row">
-              <CategoryNavbar categories />
+              <CategoryNavbar
+                categories
+                selectedCategoryId=categoryId
+                onClick=(reduce(id => CategoryClicked(id)))
+              />
               <ItemsPane
                 items
-                selectedItemId=1
-                onClick=(reduce(evt => ItemClicked(2)))
+                selectedItemId=itemId
+                onClick=(reduce(id => ItemClicked(id)))
               />
             </div>;
           }
         )
       />
-    </div>
+    </div>;
+  }
 };
