@@ -22,6 +22,10 @@ h1 {
     width: 280px;
 }
 
+.col.error .fas {
+    color: red;
+}
+
 .intro-message {
     padding: 48px;
     font-size: 48px;
@@ -76,6 +80,10 @@ h1 {
     padding-top: 80px;
     padding-bottom: 80px;
     margin-top: 15px;
+}
+
+.remote-data-error .fa-exclamation-triangle {
+    color: red;
 }
 
 @keyframes fadein {

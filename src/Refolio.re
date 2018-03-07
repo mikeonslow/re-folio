@@ -147,14 +147,25 @@ module RemoteData = {
     | Success(Portfolio.t);
   let defaultLoader =
     <div className="row">
-      <div className="col-4 text-center" />
+      <div className="col-4" />
       <div className="col-4 remote-data-loader text-center">
         (str("Loading projects..."))
-        <div className="fa-3x ">
+        <div className="fa-3x">
           <i className="fas fa-circle-notch fa-spin" />
         </div>
       </div>
-      <div className="col-4 text-center" />
+      <div className="col-4" />
+    </div>;
+  let defaultError = error =>
+    <div className="row">
+      <div className="col-4" />
+      <div className="col-4 remote-data-error text-center">
+        <div className="fa-3x ">
+          <i className="fas fa-exclamation-triangle" />
+        </div>
+        (str(error))
+      </div>
+      <div className="col-4" />
     </div>;
   let initHandler = view => view;
   let loadingHandler = view => view;
@@ -198,7 +209,7 @@ let make = children => {
     portfolio: NotAsked,
     selectedCategoryId: None,
     selectedItemId: None,
-    apiUrl: "http://www.mocky.io/v2/59f8cfa92d0000891dad41ed?mocky-delay=1000ms"
+    apiUrl: "http://www.mmocky.io/v2/59f8cfa92d0000891dad41ed?mocky-delay=1000ms"
   },
   didMount: self => {
     self.send(FetchPortfolio(self.state.apiUrl));
@@ -233,7 +244,11 @@ let make = children => {
             )
         )
       )
-    | FetchPortfolioFailure => ReasonReact.NoUpdate
+    | FetchPortfolioFailure =>
+      ReasonReact.Update({
+        ...state,
+        portfolio: Error("Failed to fetch projects from API...")
+      })
     | FetchPortfolioSuccess(portfolio) =>
       ReasonReact.Update({...state, portfolio: Success(portfolio)})
     | CategoryClicked(id) => ReasonReact.NoUpdate
@@ -249,7 +264,7 @@ let make = children => {
         state=portfolio
         initView=RemoteData.defaultLoader
         loadingView=RemoteData.defaultLoader
-        errorView=(e => <div className="row"> (str(e)) </div>)
+        errorView=(e => RemoteData.defaultError(e))
         successView=(
           data => {
             let categories = data.categories;
