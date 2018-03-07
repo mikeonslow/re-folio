@@ -30,6 +30,41 @@ module Item = {
     description: string,
     overlayColor: string
   };
+  let component = ReasonReact.statelessComponent("Item");
+  let make = (~item: t, ~selectedItemId: int, ~onClick, children) => {
+    ...component,
+    render: (_) =>
+      <div className="col-4 item-panel">
+        <img
+          src=item.imageUrl
+          className="img-fluid"
+          onClick=(evt => onClick())
+        />
+      </div>
+  };
+};
+
+module ItemsPane = {
+  let component = ReasonReact.statelessComponent("ItemsPane");
+  let make = (~items: list(Item.t), ~selectedItemId: int, ~onClick, children) => {
+    ...component,
+    render: (_) =>
+      <div className="row">
+        (
+          items
+          |> List.map((item: Item.t) =>
+               <Item
+                 key=(string_of_int(item.id))
+                 item
+                 selectedItemId
+                 onClick=(evt => onClick())
+               />
+             )
+          |> Array.of_list
+          |> ReasonReact.arrayToElement
+        )
+      </div>
+  };
 };
 
 module Portfolio = {
@@ -98,29 +133,16 @@ module CategoryNavbar = {
   let make = (~categories: list(Category.t), children) => {
     ...component,
     render: (_) =>
-      <div className="row">
-        <div className="col">
-          <div className="nav-category">
-            (categoryButtons(categories, 1))
-          </div>
-        </div>
+      <div className="col nav-category">
+        (categoryButtons(categories, 1))
       </div>
-  };
-};
-
-module ItemView = {
-  let component = ReasonReact.statelessComponent("ItemView");
-  let make = (~category: Category.t, children) => {
-    ...component,
-    render: (_) =>
-      <button className="btn btn-primary"> (str(category.label)) </button>
   };
 };
 
 type remoteData =
   | NotAsked
   | Loading
-  | Error
+  | Error(string)
   | Success(Portfolio.t);
 
 type state = {
@@ -188,25 +210,29 @@ let make = children => {
     | CategoryClicked(id) => ReasonReact.NoUpdate
     | ItemClicked(id) => ReasonReact.NoUpdate
     },
-  render: ({state: {apiUrl, portfolio}, reduce}) =>
+  render: ({state: {portfolio}, reduce}) =>
     <div className="container">
       <div className="row"> <div className="col" /> </div>
       <div className="row">
         <div className="col"> <h1> (str("Re-folio")) </h1> </div>
       </div>
-      <div className="row">
-        <div className="col" />
-        (
-          switch portfolio {
-          | NotAsked => <div> (str("Not Asked")) </div>
-          | Loading => <div> (str("Loading...")) </div>
-          | Error => <div> (str("Error")) </div>
-          | Success(portfolio) =>
-            <CategoryNavbar categories=portfolio.categories />
-          }
-        )
-      </div>
-      <div className="row"> <div className="col selected-item" /> </div>
-      <div className="row"> <div className="col items" /> </div>
+      (
+        switch portfolio {
+        | NotAsked => str("Initializing...")
+        | Loading => str("Loading...")
+        | Error(error) => str("Error: " ++ error)
+        | Success(portfolio) =>
+          let categories = portfolio.categories;
+          let items = portfolio.items;
+          <div className="row">
+            <CategoryNavbar categories />
+            <ItemsPane
+              items
+              selectedItemId=1
+              onClick=(reduce(evt => ItemClicked(2)))
+            />
+          </div>;
+        }
+      )
     </div>
 };
