@@ -87,6 +87,38 @@ module ItemsPane = {
   };
 };
 
+module SelectedItem = {
+  let component = ReasonReact.statelessComponent("SelectedItem");
+  let make = (~items: list(Item.t), ~selectedItemId: int, children) => {
+    ...component,
+    render: (_) =>
+      items
+      |> List.filter((item: Item.t) => item.id == selectedItemId)
+      |> (
+        itemList =>
+          switch itemList {
+          | [] => <div className="row selected-item-no-match" />
+          | [detail] =>
+            <div className="row selected-item-no-match">
+              <div className="col-6">
+                <img className="img-fluid" src=detail.imageUrl />
+              </div>
+              <div className="col-6">
+                <h3> (str(detail.title)) </h3>
+                <hr />
+                <span> (str(detail.description)) </span>
+                <a href=detail.linkUrl target="_blank">
+                  (str(detail.linkUrl))
+                </a>
+              </div>
+            </div>
+          | [a, ...tail] =>
+            <div className="row selected-item-duplicate-matches" />
+          }
+      )
+  };
+};
+
 module Decode = {
   let category = json =>
     Json.Decode.{
@@ -288,6 +320,7 @@ let make = children => {
                 selectedCategoryId=categoryId
                 onClick=(reduce(id => CategoryClicked(id)))
               />
+              <SelectedItem items selectedItemId=itemId />
               <ItemsPane
                 items
                 selectedItemId=itemId
