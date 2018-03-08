@@ -12,7 +12,6 @@ module Option = {
     | None => raise(Invalid_argument("unwrapUnsafely called on None"))
     };
   let withDefault = (data, default) =>
-    /*Js.log(data);*/
     switch data {
     | Some(v) => v
     | None => default
