@@ -301,7 +301,11 @@ let make = children => {
         portfolio: Success(portfolio)
       });
     | CategoryClicked(id) =>
-      ReasonReact.Update({...state, selectedCategoryId: Some(id)})
+      ReasonReact.Update({
+        ...state,
+        selectedCategoryId: Some(id),
+        selectedItemId: None
+      })
     | ItemClicked(id) =>
       ReasonReact.Update({...state, selectedItemId: Some(id)})
     },
