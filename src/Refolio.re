@@ -91,33 +91,28 @@ module SelectedItem = {
   let component = ReasonReact.statelessComponent("SelectedItem");
   let make = (~items: list(Item.t), ~selectedItemId: int, children) => {
     ...component,
-    render: (_) =>
-      items
-      |> List.filter((item: Item.t) => item.id == selectedItemId)
-      |> (
-        itemList =>
-          switch itemList {
-          | [] => <div className="row selected-item-no-match" />
-          | [detail] =>
-            <div className="row selected-item-container">
-              <div className="col-6">
-                <img className="img-fluid" src=detail.imageUrl />
-              </div>
-              <div className="col-6">
-                <h3> (str(detail.title)) </h3>
-                <hr />
-                <span> (str(detail.description)) </span>
-                <br />
-                <br />
-                <a href=detail.linkUrl target="_blank">
-                  (str(detail.linkUrl))
-                </a>
-              </div>
-            </div>
-          | [a, ...tail] =>
-            <div className="row selected-item-duplicate-matches" />
-          }
-      )
+    render: (_) => {
+      let itemList =
+        items |> List.filter((item: Item.t) => item.id == selectedItemId);
+      switch itemList {
+      | [] => <div className="row selected-item-no-match" />
+      | [detail] =>
+        <div className="row selected-item-container">
+          <div className="col-6">
+            <img className="img-fluid" src=detail.imageUrl />
+          </div>
+          <div className="col-6">
+            <h3> (str(detail.title)) </h3>
+            <hr />
+            <span> (str(detail.description)) </span>
+            <br />
+            <br />
+            <a href=detail.linkUrl target="_blank"> (str(detail.linkUrl)) </a>
+          </div>
+        </div>
+      | [a, ...tail] => <div className="row selected-item-duplicate-matches" />
+      };
+    }
   };
 };
 
