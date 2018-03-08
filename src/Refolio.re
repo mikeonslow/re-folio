@@ -69,7 +69,7 @@ module ItemsPane = {
   let make = (~items: list(Item.t), ~selectedItemId: int, ~onClick, children) => {
     ...component,
     render: (_) =>
-      <div className="row">
+      <div className="row items-container">
         (
           items
           |> List.map((item: Item.t) =>
@@ -99,7 +99,7 @@ module SelectedItem = {
           switch itemList {
           | [] => <div className="row selected-item-no-match" />
           | [detail] =>
-            <div className="row selected-item-no-match">
+            <div className="row selected-item-container">
               <div className="col-6">
                 <img className="img-fluid" src=detail.imageUrl />
               </div>
