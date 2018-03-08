@@ -287,7 +287,17 @@ let make = children => {
         portfolio: Error("Failed to fetch projects from API...")
       })
     | FetchPortfolioSuccess(portfolio) =>
-      ReasonReact.Update({...state, portfolio: Success(portfolio)})
+      let defaultSelectedCategory = () =>
+        switch portfolio.categories {
+        | [] => None
+        | [a, ...tail] => Some(a.id)
+        | [a] => Some(a.id)
+        };
+      ReasonReact.Update({
+        ...state,
+        selectedCategoryId: defaultSelectedCategory(),
+        portfolio: Success(portfolio)
+      });
     | CategoryClicked(id) =>
       ReasonReact.Update({...state, selectedCategoryId: Some(id)})
     | ItemClicked(id) =>
