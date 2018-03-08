@@ -107,6 +107,8 @@ module SelectedItem = {
                 <h3> (str(detail.title)) </h3>
                 <hr />
                 <span> (str(detail.description)) </span>
+                <br />
+                <br />
                 <a href=detail.linkUrl target="_blank">
                   (str(detail.linkUrl))
                 </a>
