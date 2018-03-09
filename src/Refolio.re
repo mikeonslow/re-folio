@@ -177,8 +177,10 @@ module CategoryNavbar = {
       (~categories: list(Category.t), ~selectedCategoryId, ~onClick, children) => {
     ...component,
     render: (_) =>
-      <div className="col nav-category">
-        (categoryButtons(categories, selectedCategoryId, onClick))
+      <div className="row">
+        <div className="col nav-category">
+          (categoryButtons(categories, selectedCategoryId, onClick))
+        </div>
       </div>
   };
 };
@@ -324,7 +326,7 @@ let make = children => {
               |> List.filter((i: Item.t) =>
                    0 === categoryId || i.categoryId == categoryId
                  );
-            <div className="row">
+            <span>
               <CategoryNavbar
                 categories
                 selectedCategoryId=categoryId
@@ -336,7 +338,7 @@ let make = children => {
                 selectedItemId=itemId
                 onClick=(reduce(id => ItemClicked(id)))
               />
-            </div>;
+            </span>;
           }
         )
       />
