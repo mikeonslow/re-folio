@@ -94,7 +94,10 @@ module SelectedItem = {
       let itemList =
         items |> List.filter((item: Item.t) => item.id == selectedItemId);
       switch itemList {
-      | [] => <div className="row selected-item-no-match" />
+      | [] =>
+        <div className="row selected-item-no-match">
+          <div className="col">(str("No categories found"))</div>
+        </div>
       | [detail] =>
         <div className="row selected-item-container">
           <div className="col-6">
@@ -109,7 +112,10 @@ module SelectedItem = {
             <a href=detail.linkUrl target="_blank"> (str(detail.linkUrl)) </a>
           </div>
         </div>
-      | [a, ...tail] => <div className="row selected-item-duplicate-matches" />
+      | [a, ...tail] =>
+        <div className="row selected-item-duplicate-matches">
+          <div className="col">(str("Error: Duplicate categories with same ID exist!!!"))</div>
+        </div>
       };
     }
   };
