@@ -48,6 +48,10 @@ h1 {
     padding-top: 25px;
 }
 
+.selected-item-container .img-fluid {
+    cursor: none;
+}
+
 .item-panel img , .selected-item-container img {
     padding: 4px;
     border: 1px solid #a9a9a9;
