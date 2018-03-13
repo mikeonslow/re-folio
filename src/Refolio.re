@@ -38,7 +38,7 @@ module Item = {
         <img
           src=item.imageUrl
           className="img-fluid"
-          onClick=(_evt => selectedItemId === item.id ? onClick() : ())
+          onClick=(_evt => selectedItemId === item.id ? () : onClick())
         />
       </div>
   };
