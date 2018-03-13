@@ -31,14 +31,14 @@ module Item = {
     overlayColor: string
   };
   let component = ReasonReact.statelessComponent("Item");
-  let make = (~item: t, ~selectedItemId: int, ~onClick, children) => {
+  let make = (~item: t, ~selectedItemId: int, ~onClick, _children) => {
     ...component,
     render: (_) =>
       <div className="col-4 item-panel">
         <img
           src=item.imageUrl
           className="img-fluid"
-          onClick=(evt => onClick())
+          onClick=(_evt => selectedItemId === item.id ? onClick() : ())
         />
       </div>
   };
@@ -60,7 +60,7 @@ type action =
 
 module ItemsPane = {
   let component = ReasonReact.statelessComponent("ItemsPane");
-  let make = (~items: list(Item.t), ~selectedItemId: int, ~onClick, children) => {
+  let make = (~items: list(Item.t), ~selectedItemId: int, ~onClick, _children) => {
     ...component,
     render: (_) =>
       <div className="row items-container">
@@ -71,7 +71,7 @@ module ItemsPane = {
                  key=(string_of_int(item.id))
                  item
                  selectedItemId
-                 onClick=(evt => onClick(item.id))
+                 onClick=(_evt => onClick(item.id))
                />
              )
           |> Array.of_list
@@ -83,7 +83,7 @@ module ItemsPane = {
 
 module SelectedItem = {
   let component = ReasonReact.statelessComponent("SelectedItem");
-  let make = (~items: list(Item.t), ~selectedItemId: int, children) => {
+  let make = (~items: list(Item.t), ~selectedItemId: int, _children) => {
     ...component,
     render: (_) => {
       let itemList =
@@ -104,7 +104,7 @@ module SelectedItem = {
             <a href=detail.linkUrl target="_blank"> (str(detail.linkUrl)) </a>
           </div>
         </div>
-      | [a, ...tail] =>
+      | [_a, ..._tail] =>
         <div className="row selected-item-duplicate-matches">
           <div className="col">
             (str("Error: Duplicate items with same ID exist!!!"))
@@ -141,7 +141,7 @@ module Decode = {
 
 module CategoryButton = {
   let component = ReasonReact.statelessComponent("CategoryButton");
-  let make = (~category: Category.t, ~selectedCategoryId, ~onClick, children) => {
+  let make = (~category: Category.t, ~selectedCategoryId, ~onClick, _children) => {
     ...component,
     render: (_) =>
       <button
@@ -152,7 +152,7 @@ module CategoryButton = {
             ("btn-secondary", selectedCategoryId !== category.id)
           ])
         )
-        onClick=(evt => onClick(category.id))>
+        onClick=(_evt => onClick(category.id))>
         (str(category.label))
       </button>
   };
@@ -174,7 +174,7 @@ let categoryButtons = (categories, selectedCategoryId, onClick) =>
 module CategoryNavbar = {
   let component = ReasonReact.statelessComponent("CategoryButton");
   let make =
-      (~categories: list(Category.t), ~selectedCategoryId, ~onClick, children) => {
+      (~categories: list(Category.t), ~selectedCategoryId, ~onClick, _children) => {
     ...component,
     render: (_) =>
       <div className="row">
@@ -219,7 +219,7 @@ module RemoteData = {
   let successHandler = (view, data) => view(data);
   let component = ReasonReact.statelessComponent("RemoteData");
   let make =
-      (~state, ~initView, ~loadingView, ~errorView, ~successView, children) => {
+      (~state, ~initView, ~loadingView, ~errorView, ~successView, _children) => {
     ...component,
     render: (_) =>
       switch state {
@@ -241,7 +241,7 @@ type state = {
 
 let component = ReasonReact.reducerComponent("Refolio");
 
-let make = children => {
+let make = _children => {
   ...component,
   initialState: () => {
     errorMessage: None,
@@ -288,8 +288,8 @@ let make = children => {
       let defaultSelectedCategory = () =>
         switch portfolio.categories {
         | [] => None
-        | [a, ...tail] => Some(a.id)
         | [a] => Some(a.id)
+        | [a, ..._tail] => Some(a.id)
         };
       ReasonReact.Update({
         ...state,
