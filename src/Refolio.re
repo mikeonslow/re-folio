@@ -6,11 +6,6 @@ let classList = classes =>
   |> String.concat(" ");
 
 module Option = {
-  let unwrapUnsafely = data =>
-    switch data {
-    | Some(v) => v
-    | None => raise(Invalid_argument("unwrapUnsafely called on None"))
-    };
   let withDefault = (data, default) =>
     switch data {
     | Some(v) => v
@@ -96,7 +91,7 @@ module SelectedItem = {
       switch itemList {
       | [] =>
         <div className="row selected-item-no-match">
-          <div className="col">(str("No categories found"))</div>
+          <div className="col"> (str("No categories found")) </div>
         </div>
       | [detail] =>
         <div className="row selected-item-container">
@@ -114,7 +109,9 @@ module SelectedItem = {
         </div>
       | [a, ...tail] =>
         <div className="row selected-item-duplicate-matches">
-          <div className="col">(str("Error: Duplicate categories with same ID exist!!!"))</div>
+          <div className="col">
+            (str("Error: Duplicate categories with same ID exist!!!"))
+          </div>
         </div>
       };
     }
