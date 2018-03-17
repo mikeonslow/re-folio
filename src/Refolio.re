@@ -40,11 +40,13 @@ module Item = {
     ...component,
     render: (_) =>
       <div className="col-md-4 item-panel">
-        <img
-          src=item.imageUrl
-          className="img-fluid"
-          onClick=(_evt => selectedItemId === item.id ? () : onClick())
-        />
+        <a href="#refolio">
+          <img
+            src=item.imageUrl
+            className="img-fluid"
+            onClick=(_evt => selectedItemId === item.id ? () : onClick())
+          />
+        </a>
       </div>
   };
 };
@@ -313,7 +315,7 @@ let make = _children => {
   render: ({state: {portfolio, selectedCategoryId, selectedItemId}, reduce}) => {
     let categoryId = Option.withDefault(selectedCategoryId, 0);
     let itemId = Option.withDefault(selectedItemId, 0);
-    <div className="container">
+    <div id="refolio" className="container">
       <div className="row"> <div className="col"> <br /> </div> </div>
       <div className="row">
         <div className="col"> <h1> (str("Re-folio")) </h1> </div>
