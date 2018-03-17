@@ -11,6 +11,11 @@ module Option = {
     | Some(v) => v
     | None => default
     };
+  let unwrapUnsafely = data =>
+    switch data {
+    | Some(v) => v
+    | None => raise(Invalid_argument("unwrapUnsafely called on None"))
+    };
 };
 
 module Category = {
@@ -34,7 +39,7 @@ module Item = {
   let make = (~item: t, ~selectedItemId: int, ~onClick, _children) => {
     ...component,
     render: (_) =>
-      <div className="col-4 item-panel">
+      <div className="col-md-4 item-panel">
         <img
           src=item.imageUrl
           className="img-fluid"
@@ -92,10 +97,10 @@ module SelectedItem = {
       | [] => <div className="row selected-item-no-match" />
       | [detail] =>
         <div className="row selected-item-container">
-          <div className="col-6">
+          <div className="col-md-6">
             <img className="img-fluid" src=detail.imageUrl />
           </div>
-          <div className="col-6">
+          <div className="col-md-6">
             <h3> (str(detail.title)) </h3>
             <hr />
             <span> (str(detail.description)) </span>
@@ -193,25 +198,25 @@ module RemoteData = {
     | Success(Portfolio.t);
   let defaultLoader =
     <div className="row">
-      <div className="col-4" />
-      <div className="col-4 remote-data-loader text-center">
+      <div className="col-md-4" />
+      <div className="col-md-4 remote-data-loader text-center">
         (str("Loading projects..."))
         <div className="fa-3x">
           <i className="fas fa-circle-notch fa-spin" />
         </div>
       </div>
-      <div className="col-4" />
+      <div className="col-md-4" />
     </div>;
   let defaultError = error =>
     <div className="row">
-      <div className="col-4" />
-      <div className="col-4 remote-data-error text-center">
+      <div className="col-md-4" />
+      <div className="col-md-4 remote-data-error text-center">
         <div className="fa-3x ">
           <i className="fas fa-exclamation-triangle" />
         </div>
         (str(error))
       </div>
-      <div className="col-4" />
+      <div className="col-md-4" />
     </div>;
   let initHandler = view => view;
   let loadingHandler = view => view;
@@ -248,7 +253,7 @@ let make = _children => {
     portfolio: NotAsked,
     selectedCategoryId: None,
     selectedItemId: None,
-    apiUrl: "https://www.mocky.io/v2/59f8cfa92d0000891dad41ed?mocky-delay=1000ms"
+    apiUrl: "https://www.mocky.io/v2/59f8cfa92d0000891dad41ed"
   },
   didMount: self => {
     self.send(FetchPortfolio(self.state.apiUrl));
