@@ -6,6 +6,6 @@ module.exports = {
   output: {
     path: outputDir,
     publicPath: outputDir,
-    filename: 'Index.js',
+    filename: 'index.js',
   },
 };
