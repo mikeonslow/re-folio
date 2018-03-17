@@ -314,7 +314,7 @@ let make = _children => {
     let categoryId = Option.withDefault(selectedCategoryId, 0);
     let itemId = Option.withDefault(selectedItemId, 0);
     <div className="container">
-      <div className="row"> <div className="col" /> </div>
+      <div className="row"> <div className="col"> <br /> </div> </div>
       <div className="row">
         <div className="col"> <h1> (str("Re-folio")) </h1> </div>
       </div>
