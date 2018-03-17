@@ -1,5 +1,9 @@
 # re-folio
 
+Built based on the excellent: https://github.com/reasonml-community/reason-react-example
+
+View the [live demo](https://mikeonslow.github.io/re-folio/demo/)
+
 Run this project:
 
 ```
